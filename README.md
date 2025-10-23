@@ -297,6 +297,9 @@ This project is available for educational and personal use. Please check with th
 
 ---
 
-**Author**: IrminDev  
+**Authors**: 
+- IrminDev
+- AngelHernand
+
 **Repository**: [https://github.com/IrminDev/Chess-Mobile](https://github.com/IrminDev/Chess-Mobile)  
 **Version**: 1.0
