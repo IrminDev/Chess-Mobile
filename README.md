@@ -45,22 +45,30 @@ Chess Mobile is a native Android application that provides a complete chess gami
 
 ## Screenshots
 
-Place your screenshots in the `screenshots/` folder with the following images:
+### Main Menu
+The main menu screen showing game mode options.
 
-1. **Main Menu** (`screenshots/menu.png`)
-   - Screenshot of the main menu screen showing game mode options
+![Main Menu](screenshots/menu.png)
 
-2. **Game Board** (`screenshots/game_board.png`)
-   - Screenshot of the chess board during gameplay with pieces in their initial positions
+### Game Board
+The chess board during gameplay with pieces in their initial positions.
 
-3. **Active Game** (`screenshots/active_game.png`)
-   - Screenshot showing an active game with a piece selected and valid moves highlighted
+![Game Board](screenshots/game_board.png)
 
-4. **Check State** (`screenshots/check_state.png`)
-   - Screenshot showing the check notification when a king is in check
+### Active Game
+An active game with a piece selected and valid moves highlighted.
 
-5. **Checkmate** (`screenshots/checkmate.png`)
-   - Screenshot showing the checkmate notification and game end state
+![Active Game](screenshots/active_game.png)
+
+### Check State
+The check notification when a king is in check.
+
+![Check State](screenshots/check_state.png)
+
+### Checkmate
+The checkmate notification and game end state.
+
+![Checkmate](screenshots/checkmate.png)
 
 ## Architecture
 
