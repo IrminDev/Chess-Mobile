@@ -375,4 +375,25 @@ class ChessBoard {
         moveHistory.clear()
         lastMove = null
     }
+    
+    // Métodos para cargar el estado del juego desde XML
+    fun setPieceForLoading(position: Position, piece: ChessPiece?) {
+        if (position.isValid()) {
+            board[position.row][position.col] = piece
+        }
+    }
+    
+    fun setCurrentTurnForLoading(turn: PieceColor) {
+        currentTurn = turn
+    }
+    
+    fun setGameStateForLoading(state: GameState) {
+        gameState = state
+    }
+    
+    fun setLastMoveForLoading(move: Move) {
+        lastMove = move
+    }
+    
+    fun getMoveHistorySize(): Int = moveHistory.size
 }

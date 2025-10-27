@@ -13,7 +13,10 @@ import androidx.compose.ui.unit.sp
 fun MenuScreen(
     onSinglePlayerClick: () -> Unit,
     onMultiplayerLocalClick: () -> Unit,
-    onMultiplayerRemoteClick: () -> Unit
+    onMultiplayerRemoteClick: () -> Unit,
+    onContinueGameClick: () -> Unit,
+    onStatisticsClick: () -> Unit,
+    hasSavedGame: Boolean
 ) {
     Column(
         modifier = Modifier
@@ -61,6 +64,22 @@ fun MenuScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
+            onClick = onContinueGameClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .padding(vertical = 4.dp),
+            enabled = hasSavedGame
+        ) {
+            Text(
+                text = "Continue Game",
+                fontSize = 20.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
             onClick = onMultiplayerRemoteClick,
             modifier = Modifier
                 .fillMaxWidth()
@@ -74,10 +93,25 @@ fun MenuScreen(
             )
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedButton(
+            onClick = onStatisticsClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .padding(vertical = 4.dp)
+        ) {
+            Text(
+                text = "Statistics",
+                fontSize = 20.sp
+            )
+        }
+
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
-            text = "Only Multiplayer Local is available",
+            text = if (hasSavedGame) "You have a saved game!" else "Start a new game",
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

@@ -38,7 +38,7 @@ fun GameScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -60,6 +60,21 @@ fun GameScreen(
 
             Button(onClick = { viewModel.resetGame() }) {
                 Text("Reset")
+            }
+        }
+        
+        // Save and Game Info Row
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            OutlinedButton(
+                onClick = { viewModel.saveGame() },
+                modifier = Modifier.padding(horizontal = 4.dp)
+            ) {
+                Text("Save Game")
             }
         }
 

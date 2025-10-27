@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.irmin.chess.ui.navigation.ChessApp
 import com.github.irmin.chess.ui.theme.ChessTheme
+import com.github.irmin.chess.viewmodel.ChessViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +23,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ChessApp()
+                    val viewModel: ChessViewModel = viewModel()
+                    ChessApp(viewModel = viewModel)
                 }
             }
         }

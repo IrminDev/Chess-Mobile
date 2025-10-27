@@ -29,6 +29,21 @@ Chess Mobile is a native Android application that provides a complete chess gami
   - Check and checkmate detection
   - Stalemate detection
 
+- **Game Save/Load System** ⭐ NEW
+  - Save game state to XML file
+  - Continue games from where you left off
+  - Automatic save on game end
+  - Manual save during gameplay
+  - Preserves complete board state, turn, and move history
+
+- **Statistics Tracking** ⭐ NEW
+  - Track wins as White and Black
+  - Record total play time
+  - Monitor game durations (longest, shortest, average)
+  - View win rates and game statistics
+  - Persistent data storage using Room database
+  - Reset statistics option
+
 - **User Interface**
   - Modern Material Design 3 interface
   - Interactive chessboard with visual feedback
@@ -36,12 +51,15 @@ Chess Mobile is a native Android application that provides a complete chess gami
   - Current turn indicator
   - Game state notifications (Check, Checkmate, Stalemate)
   - Game reset functionality
+  - Statistics viewer with detailed insights
 
 - **Game Management**
   - Local multiplayer (hot-seat mode)
   - Move history tracking
   - Complete game state management
   - Turn-based gameplay
+  - Save/Load functionality
+  - Comprehensive statistics
 
 ## Screenshots
 
@@ -80,6 +98,7 @@ The application follows the **MVVM (Model-View-ViewModel)** architecture pattern
 ┌─────────────────────────────────────────┐
 │           UI Layer (Compose)            │
 │   - GameScreen, MenuScreen              │
+│   - StatisticsScreen                    │
 │   - Composable components               │
 └────────────────┬────────────────────────┘
                  │
@@ -90,14 +109,21 @@ The application follows the **MVVM (Model-View-ViewModel)** architecture pattern
 └────────────────┬────────────────────────┘
                  │
 ┌────────────────▼────────────────────────┐
-│          Model Layer                    │
+│       Data & Model Layer                │
 │   - ChessBoard (Game Logic)             │
-│   - ChessPiece, Position                │
-│   - Game State Management               │
+│   - GameStateXmlManager (Save/Load)     │
+│   - GameRepository (Statistics)         │
+│   - Room Database                       │
 └─────────────────────────────────────────┘
 ```
 
 ### Key Components
+
+- **Data Layer**: ⭐ NEW - Persistence and statistics
+  - `GameStateXmlManager`: XML serialization for game state
+  - `ChessDatabase`: Room database for statistics
+  - `GameRepository`: Data access abstraction
+  - `GameStatistics`: Statistics entity
 
 - **Model Layer**: Contains the core game logic and data structures
   - `ChessBoard`: Main game logic, move validation, check detection
@@ -106,12 +132,13 @@ The application follows the **MVVM (Model-View-ViewModel)** architecture pattern
   - `GameState`, `PieceType`, `PieceColor`: Enums for game state
 
 - **ViewModel Layer**: Manages UI state and user interactions
-  - `ChessViewModel`: Handles game state, move processing, and UI updates
+  - `ChessViewModel`: Handles game state, move processing, save/load, statistics
   - `ChessUiState`: Immutable state representation for the UI
 
 - **UI Layer**: Jetpack Compose-based interface
   - `GameScreen`: Main game board and controls
-  - `MenuScreen`: Game mode selection
+  - `MenuScreen`: Game mode selection, continue game, statistics
+  - `StatisticsScreen`: ⭐ NEW - View game statistics
   - `NavigationGraph`: App navigation management
 
 ## Technologies
@@ -132,6 +159,8 @@ The application follows the **MVVM (Model-View-ViewModel)** architecture pattern
 - androidx.compose:compose-bom:2024.09.00
 - androidx.compose.material3:material3
 - androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4
+- androidx.room:room-runtime:2.6.1                 ⭐ NEW
+- androidx.room:room-ktx:2.6.1                     ⭐ NEW
 ```
 
 ### Development Tools
@@ -141,6 +170,7 @@ The application follows the **MVVM (Model-View-ViewModel)** architecture pattern
 - Target SDK: 36
 - Compile SDK: 36
 - Java Version: 11
+- KSP: 2.0.21-1.0.28 ⭐ NEW (for Room annotation processing)
 
 ## Requirements
 
@@ -209,37 +239,100 @@ Chess-Mobile/
 │   ├── src/
 │   │   ├── main/
 │   │   │   ├── java/com/github/irmin/chess/
+│   │   │   │   ├── data/                          ⭐ NEW
+│   │   │   │   │   ├── ChessDatabase.kt          # Room database
+│   │   │   │   │   ├── GameRepository.kt         # Data repository
+│   │   │   │   │   ├── GameStatistics.kt         # Statistics entity
+│   │   │   │   │   ├── GameStatisticsDao.kt      # Room DAO
+│   │   │   │   │   └── GameStateXmlManager.kt    # XML save/load
 │   │   │   │   ├── model/
-│   │   │   │   │   ├── ChessBoard.kt       # Core game logic
-│   │   │   │   │   ├── ChessPiece.kt       # Piece representation
-│   │   │   │   │   ├── Position.kt         # Board positions
-│   │   │   │   │   ├── Move.kt             # Move records
-│   │   │   │   │   ├── PieceType.kt        # Piece types enum
-│   │   │   │   │   ├── PieceColor.kt       # Color enum
-│   │   │   │   │   └── GameState.kt        # Game state enum
+│   │   │   │   │   ├── ChessBoard.kt             # Core game logic
+│   │   │   │   │   ├── ChessPiece.kt             # Piece representation
+│   │   │   │   │   ├── Position.kt               # Board positions
+│   │   │   │   │   ├── Move.kt                   # Move records
+│   │   │   │   │   ├── PieceType.kt              # Piece types enum
+│   │   │   │   │   ├── PieceColor.kt             # Color enum
+│   │   │   │   │   └── GameState.kt              # Game state enum
 │   │   │   │   ├── viewmodel/
-│   │   │   │   │   └── ChessViewModel.kt   # Game state management
+│   │   │   │   │   └── ChessViewModel.kt         # Game state management
 │   │   │   │   ├── ui/
 │   │   │   │   │   ├── screens/
-│   │   │   │   │   │   ├── GameScreen.kt   # Game UI
-│   │   │   │   │   │   └── MenuScreen.kt   # Menu UI
+│   │   │   │   │   │   ├── GameScreen.kt         # Game UI
+│   │   │   │   │   │   ├── MenuScreen.kt         # Menu UI
+│   │   │   │   │   │   └── StatisticsScreen.kt   ⭐ NEW
 │   │   │   │   │   ├── navigation/
 │   │   │   │   │   │   └── NavigationGraph.kt
-│   │   │   │   │   └── theme/              # App theming
-│   │   │   │   └── MainActivity.kt         # Entry point
+│   │   │   │   │   └── theme/                    # App theming
+│   │   │   │   └── MainActivity.kt               # Entry point
 │   │   │   ├── res/
-│   │   │   │   ├── drawable/               # Piece images
-│   │   │   │   └── values/                 # Strings, colors, themes
+│   │   │   │   ├── drawable/                     # Piece images
+│   │   │   │   └── values/                       # Strings, colors, themes
 │   │   │   └── AndroidManifest.xml
-│   │   ├── test/                           # Unit tests
-│   │   └── androidTest/                    # Instrumented tests
+│   │   ├── test/                                 # Unit tests
+│   │   └── androidTest/                          # Instrumented tests
 │   └── build.gradle.kts
 ├── gradle/
-│   └── libs.versions.toml                  # Dependency versions
+│   └── libs.versions.toml                        # Dependency versions
 ├── build.gradle.kts
 ├── settings.gradle.kts
-└── README.md
+├── README.md
+├── NUEVAS_FUNCIONALIDADES.md                     ⭐ NEW - Detailed documentation
+└── ESTRUCTURA_PROYECTO.md                        ⭐ NEW - Project structure guide
 ```
+
+## New Features ⭐
+
+### Game Save/Load System
+
+The application now supports saving and loading game states using XML serialization:
+
+- **Save Game**: Click "Save Game" button during play to save current state
+- **Continue Game**: Resume from last saved position via "Continue Game" button
+- **Auto-save**: Games are automatically deleted when completed
+- **XML Format**: Human-readable XML file stores complete board state
+
+**What gets saved:**
+- All piece positions and states
+- Current turn (White/Black)
+- Game state (Playing, Check, Checkmate, Stalemate)
+- Last move (for En Passant validation)
+- Game start time
+- Whether pieces have moved (for Castling)
+
+### Statistics System
+
+Comprehensive statistics tracking using Room database:
+
+**Tracked Statistics:**
+- Games won as White
+- Games won as Black
+- Games drawn
+- Total play time
+- Longest game duration
+- Shortest game duration
+- Average game time
+- Total moves played
+- Win rates for each color
+- Last played timestamp
+
+**Statistics Features:**
+- Persistent storage across app sessions
+- Real-time updates after each game
+- Visual progress bars for win rates
+- Formatted time displays
+- Reset option to clear all statistics
+- Automatic calculation of derived metrics
+
+### How to Use
+
+1. **Start New Game**: Click "Multiplayer Local" from menu
+2. **Play**: Make moves on the board
+3. **Save**: Click "Save Game" to save progress
+4. **Continue**: Next time, click "Continue Game" to resume
+5. **View Stats**: Click "Statistics" to see your performance
+6. **Reset Stats**: Use "Reset" button in statistics screen to clear data
+
+For detailed documentation, see [NUEVAS_FUNCIONALIDADES.md](NUEVAS_FUNCIONALIDADES.md) and [ESTRUCTURA_PROYECTO.md](ESTRUCTURA_PROYECTO.md).
 
 ## Game Rules Implementation
 
