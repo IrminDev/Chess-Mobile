@@ -159,8 +159,7 @@ The application follows the **MVVM (Model-View-ViewModel)** architecture pattern
 - androidx.compose:compose-bom:2024.09.00
 - androidx.compose.material3:material3
 - androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4
-- androidx.room:room-runtime:2.6.1                 ⭐ NEW
-- androidx.room:room-ktx:2.6.1                     ⭐ NEW
+- androidx.room:room-runtime:2.6.1                 ⭐ NEW - androidx.room:room-ktx:2.6.1                     ⭐ NEW
 ```
 
 ### Development Tools
