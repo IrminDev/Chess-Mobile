@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import com.github.irmin.chess.R
 import com.github.irmin.chess.model.*
 import com.github.irmin.chess.viewmodel.ChessViewModel
+import com.github.irmin.chess.viewmodel.GameMode
 
 @Composable
 fun GameScreen(
@@ -29,107 +30,150 @@ fun GameScreen(
     val uiState by viewModel.uiState.collectAsState()
     val board = uiState.board
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Header with game info
-        Row(
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
-            Button(onClick = onBackToMenu) {
-                Text("Menu")
-            }
-
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "Current Turn:",
-                    fontSize = 16.sp
-                )
-                Text(
-                    text = if (board.currentTurn == PieceColor.WHITE) "White" else "Black",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            Button(onClick = { viewModel.resetGame() }) {
-                Text("Reset")
-            }
-        }
-        
-        // Save and Game Info Row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            OutlinedButton(
-                onClick = { viewModel.saveGame() },
-                modifier = Modifier.padding(horizontal = 4.dp)
+            // Header with game info
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Save Game")
+                Button(onClick = onBackToMenu) {
+                    Text("Menu")
+                }
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Current Turn:",
+                        fontSize = 16.sp
+                    )
+                    Text(
+                        text = if (board.currentTurn == PieceColor.WHITE) "White" else "Black",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    // Indicador de modo de juego
+                    if (uiState.gameMode == GameMode.SINGLE_PLAYER) {
+                        Text(
+                            text = "(vs AI - ${uiState.aiDifficulty.name})",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                Button(onClick = { viewModel.resetGame() }) {
+                    Text("Reset")
+                }
+            }
+
+            // Save and Game Info Row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                OutlinedButton(
+                    onClick = { viewModel.saveGame() },
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                ) {
+                    Text("Save Game")
+                }
+            }
+
+            // Game state message
+            when (board.gameState) {
+                GameState.CHECK -> {
+                    Text(
+                        text = "CHECK!",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Red,
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(8.dp)
+                    )
+                }
+                GameState.CHECKMATE -> {
+                    Text(
+                        text = "CHECKMATE! ${if (board.currentTurn == PieceColor.WHITE) "Black" else "White"} wins!",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Red,
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(8.dp)
+                    )
+                }
+                GameState.STALEMATE -> {
+                    Text(
+                        text = "STALEMATE! It's a draw!",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Blue,
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(8.dp)
+                    )
+                }
+                else -> Spacer(modifier = Modifier.height(40.dp))
+            }
+
+            // Chess board
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .padding(8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                ChessBoard(
+                    board = board,
+                    selectedPosition = uiState.selectedPosition,
+                    validMoves = uiState.validMoves,
+                    onSquareClick = { position -> viewModel.onSquareClicked(position) }
+                )
             }
         }
 
-        // Game state message
-        when (board.gameState) {
-            GameState.CHECK -> {
-                Text(
-                    text = "CHECK!",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Red,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(8.dp)
-                )
+        // Indicador de que la IA está pensando
+        if (uiState.isAIThinking) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0x80000000)),
+                contentAlignment = Alignment.Center
+            ) {
+                Card(
+                    modifier = Modifier.padding(32.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(64.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "AI is thinking...",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             }
-            GameState.CHECKMATE -> {
-                Text(
-                    text = "CHECKMATE! ${if (board.currentTurn == PieceColor.WHITE) "Black" else "White"} wins!",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Red,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(8.dp)
-                )
-            }
-            GameState.STALEMATE -> {
-                Text(
-                    text = "STALEMATE! It's a draw!",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Blue,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(8.dp)
-                )
-            }
-            else -> Spacer(modifier = Modifier.height(40.dp))
-        }
-
-        // Chess board
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1f)
-                .padding(8.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            ChessBoard(
-                board = board,
-                selectedPosition = uiState.selectedPosition,
-                validMoves = uiState.validMoves,
-                onSquareClick = { position -> viewModel.onSquareClicked(position) }
-            )
         }
     }
 }
@@ -193,7 +237,7 @@ fun ChessSquare(
                     .size(16.dp)
                     .background(Color(0x80000000), shape = CircleShape)
             )
-        } else if (isValidMove && piece != null) {
+        } else if (isValidMove) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -223,4 +267,3 @@ fun getPieceDrawable(piece: ChessPiece): Int {
         PieceType.KING -> if (piece.color == PieceColor.WHITE) R.drawable.king_w else R.drawable.king_b
     }
 }
-

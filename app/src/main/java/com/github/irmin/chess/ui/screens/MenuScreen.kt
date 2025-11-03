@@ -2,22 +2,25 @@ package com.github.irmin.chess.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.github.irmin.chess.ai.AIDifficulty
 
 @Composable
 fun MenuScreen(
-    onSinglePlayerClick: () -> Unit,
+    onSinglePlayerClick: (AIDifficulty) -> Unit,
     onMultiplayerLocalClick: () -> Unit,
     onMultiplayerRemoteClick: () -> Unit,
     onContinueGameClick: () -> Unit,
     onStatisticsClick: () -> Unit,
     hasSavedGame: Boolean
 ) {
+    var showDifficultyDialog by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -33,12 +36,11 @@ fun MenuScreen(
         )
 
         Button(
-            onClick = onSinglePlayerClick,
+            onClick = { showDifficultyDialog = true },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(60.dp)
-                .padding(vertical = 4.dp),
-            enabled = false
+                .padding(vertical = 4.dp)
         ) {
             Text(
                 text = "Single Player",
@@ -116,5 +118,72 @@ fun MenuScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
+
+    // Diálogo para seleccionar dificultad
+    if (showDifficultyDialog) {
+        DifficultySelectionDialog(
+            onDismiss = { showDifficultyDialog = false },
+            onDifficultySelected = { difficulty ->
+                showDifficultyDialog = false
+                onSinglePlayerClick(difficulty)
+            }
+        )
+    }
 }
 
+@Composable
+fun DifficultySelectionDialog(
+    onDismiss: () -> Unit,
+    onDifficultySelected: (AIDifficulty) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Select Difficulty",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "Choose the AI difficulty level:",
+                    fontSize = 16.sp
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = { onDifficultySelected(AIDifficulty.EASY) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Easy", fontSize = 18.sp)
+                }
+
+                Button(
+                    onClick = { onDifficultySelected(AIDifficulty.MEDIUM) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Medium", fontSize = 18.sp)
+                }
+
+                Button(
+                    onClick = { onDifficultySelected(AIDifficulty.HARD) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Hard", fontSize = 18.sp)
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}

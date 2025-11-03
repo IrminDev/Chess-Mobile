@@ -6,6 +6,7 @@ import com.github.irmin.chess.ui.screens.GameScreen
 import com.github.irmin.chess.ui.screens.MenuScreen
 import com.github.irmin.chess.ui.screens.StatisticsScreen
 import com.github.irmin.chess.viewmodel.ChessViewModel
+import com.github.irmin.chess.viewmodel.GameMode
 import androidx.compose.runtime.collectAsState
 
 enum class Screen {
@@ -27,8 +28,10 @@ fun ChessApp(viewModel: ChessViewModel = viewModel()) {
     when (currentScreen) {
         Screen.MENU -> {
             MenuScreen(
-                onSinglePlayerClick = { /* Not implemented yet */ },
-                onMultiplayerLocalClick = { viewModel.startGame() },
+                onSinglePlayerClick = { difficulty ->
+                    viewModel.startGame(GameMode.SINGLE_PLAYER, difficulty)
+                },
+                onMultiplayerLocalClick = { viewModel.startGame(GameMode.LOCAL_MULTIPLAYER) },
                 onMultiplayerRemoteClick = { /* Not implemented yet */ },
                 onContinueGameClick = { viewModel.continueGame() },
                 onStatisticsClick = { viewModel.showStatistics() },
