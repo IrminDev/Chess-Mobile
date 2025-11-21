@@ -3,10 +3,12 @@ package com.github.irmin.chess.model
 data class ChessPiece(
     val type: PieceType,
     val color: PieceColor,
-    var hasMoved: Boolean = false
+    val hasMoved: Boolean = false
 ) {
-    fun setHasMoved(moved: Boolean) {
-        hasMoved = moved
+    /**
+     * Método para crear una copia con hasMoved modificado (usado en multijugador)
+     */
+    fun withHasMoved(moved: Boolean): ChessPiece {
+        return copy(hasMoved = moved)
     }
 }
-

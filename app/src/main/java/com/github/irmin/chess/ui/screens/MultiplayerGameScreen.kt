@@ -7,7 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,7 +17,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.github.irmin.chess.R
 import com.github.irmin.chess.bluetooth.ConnectionState
 import com.github.irmin.chess.model.*
 import com.github.irmin.chess.viewmodel.MultiplayerUiState
@@ -75,7 +74,7 @@ fun MultiplayerGameScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = { showDisconnectDialog = true }) {
-                        Icon(Icons.Default.ArrowBack, "Salir")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Salir")
                     }
                 }
             )
@@ -309,16 +308,5 @@ fun RowScope.Square(
                 modifier = Modifier.fillMaxSize(0.85f)
             )
         }
-    }
-}
-
-fun getPieceDrawable(piece: ChessPiece): Int {
-    return when (piece.type) {
-        PieceType.PAWN -> if (piece.color == PieceColor.WHITE) R.drawable.white_pawn else R.drawable.black_pawn
-        PieceType.ROOK -> if (piece.color == PieceColor.WHITE) R.drawable.white_rook else R.drawable.black_rook
-        PieceType.KNIGHT -> if (piece.color == PieceColor.WHITE) R.drawable.white_knight else R.drawable.black_knight
-        PieceType.BISHOP -> if (piece.color == PieceColor.WHITE) R.drawable.white_bishop else R.drawable.black_bishop
-        PieceType.QUEEN -> if (piece.color == PieceColor.WHITE) R.drawable.white_queen else R.drawable.black_queen
-        PieceType.KING -> if (piece.color == PieceColor.WHITE) R.drawable.white_king else R.drawable.black_king
     }
 }

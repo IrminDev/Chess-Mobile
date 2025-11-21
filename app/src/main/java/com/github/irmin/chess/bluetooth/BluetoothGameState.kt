@@ -1,5 +1,6 @@
 package com.github.irmin.chess.bluetooth
 
+import android.util.Log
 import com.github.irmin.chess.model.*
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -80,7 +81,27 @@ data class BluetoothGameState(
                 val builder = factory.newDocumentBuilder()
                 val doc = builder.parse(xml.byteInputStream())
                 
-                val moveElement = doc.getElementsByTagName("Move").item(0) as Element
+                // Primero verificar el tipo de mensaje
+                val typeNodes = doc.getElementsByTagName("Type")
+                if (typeNodes.length > 0) {
+                    val typeElement = typeNodes.item(0) as Element
+                    val messageType = typeElement.textContent
+
+                    // Si es un handshake, ignorarlo
+                    if (messageType == "HANDSHAKE") {
+                        Log.d("BluetoothGameState", "Received handshake message, ignoring")
+                        return null
+                    }
+                }
+
+                // Verificar que existan los elementos necesarios para un movimiento
+                val moveNodes = doc.getElementsByTagName("Move")
+                if (moveNodes.length == 0) {
+                    Log.d("BluetoothGameState", "No Move element found, not a chess move")
+                    return null
+                }
+
+                val moveElement = moveNodes.item(0) as Element
                 val fromRow = moveElement.getAttribute("fromRow").toInt()
                 val fromCol = moveElement.getAttribute("fromCol").toInt()
                 val toRow = moveElement.getAttribute("toRow").toInt()
@@ -116,6 +137,7 @@ data class BluetoothGameState(
                     boardPieces
                 )
             } catch (e: Exception) {
+                Log.e("BluetoothGameState", "Error deserializing move", e)
                 e.printStackTrace()
                 null
             }

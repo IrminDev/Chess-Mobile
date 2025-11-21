@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -37,7 +37,7 @@ fun MultiplayerSetupScreen(
 ) {
     val context = LocalContext.current
     var showPermissionDialog by remember { mutableStateOf(false) }
-    
+
     // Launcher para permisos Bluetooth
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -47,7 +47,7 @@ fun MultiplayerSetupScreen(
             showPermissionDialog = true
         }
     }
-    
+
     // Solicitar permisos al inicio
     LaunchedEffect(Unit) {
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -66,21 +66,21 @@ fun MultiplayerSetupScreen(
         }
         permissionLauncher.launch(permissions)
     }
-    
+
     // Navegar al juego cuando se conecte
     LaunchedEffect(uiState.connectionState) {
         if (uiState.connectionState is ConnectionState.Connected && uiState.gameStarted) {
             onNavigateToGame()
         }
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Multijugador Bluetooth") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Volver")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver")
                     }
                 },
                 actions = {
@@ -100,11 +100,11 @@ fun MultiplayerSetupScreen(
         ) {
             // Estado de conexión
             ConnectionStatusCard(uiState.connectionState)
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             // Opciones de juego
-            when (uiState.connectionState) {
+            when (val state = uiState.connectionState) {
                 is ConnectionState.Disconnected -> {
                     DisconnectedOptions(
                         onStartAsHost = onStartAsHost,
@@ -121,12 +121,12 @@ fun MultiplayerSetupScreen(
                     ConnectedInfo(uiState.isHost)
                 }
                 is ConnectionState.Error -> {
-                    ErrorInfo((uiState.connectionState as ConnectionState.Error).message)
+                    ErrorInfo(state.message)
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             // Lista de dispositivos disponibles
             if (uiState.connectionState is ConnectionState.Disconnected) {
                 DeviceList(
@@ -136,13 +136,13 @@ fun MultiplayerSetupScreen(
             }
         }
     }
-    
+
     // Diálogo de permisos
     if (showPermissionDialog) {
         AlertDialog(
             onDismissRequest = { showPermissionDialog = false },
             title = { Text("Permisos Necesarios") },
-            text = { 
+            text = {
                 Text("Esta aplicación necesita permisos de Bluetooth para el modo multijugador. Por favor, habilítalos en la configuración.")
             },
             confirmButton = {
@@ -157,7 +157,7 @@ fun MultiplayerSetupScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { 
+                TextButton(onClick = {
                     showPermissionDialog = false
                     onBack()
                 }) {
@@ -232,9 +232,9 @@ fun DisconnectedOptions(
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         Button(
             onClick = onStartAsHost,
             modifier = Modifier
@@ -243,17 +243,17 @@ fun DisconnectedOptions(
         ) {
             Text("Crear Partida (Host)", fontSize = 18.sp)
         }
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         Text(
             text = "O conecta a una partida existente:",
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         OutlinedButton(
             onClick = onRefreshDevices,
             modifier = Modifier.fillMaxWidth()
@@ -355,9 +355,9 @@ fun DeviceList(
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         if (devices.isEmpty()) {
             Text(
                 text = "No hay dispositivos emparejados",
@@ -386,6 +386,23 @@ fun DeviceItem(
     device: BluetoothDevice,
     onClick: () -> Unit
 ) {
+    // Obtener el nombre del dispositivo de forma segura fuera del Composable
+    val deviceName = remember(device) {
+        try {
+            device.name ?: "Dispositivo desconocido"
+        } catch (e: SecurityException) {
+            "Dispositivo (permisos requeridos)"
+        }
+    }
+
+    val deviceAddress = remember(device) {
+        try {
+            device.address
+        } catch (e: SecurityException) {
+            "---"
+        }
+    }
+
     Card(
         onClick = onClick,
         modifier = Modifier
@@ -397,25 +414,18 @@ fun DeviceItem(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            try {
-                Text(
-                    text = device.name ?: "Dispositivo desconocido",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = device.address,
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            } catch (e: SecurityException) {
-                Text(
-                    text = "Dispositivo (permisos requeridos)",
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
+            Text(
+                text = deviceName,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = deviceAddress,
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
+

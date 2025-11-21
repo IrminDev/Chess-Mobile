@@ -397,7 +397,9 @@ class ChessBoard {
     
     fun getMoveHistorySize(): Int = moveHistory.size
     
-    // Métodos para el modo multijugador por Bluetooth
+    /**
+     * Métodos para el modo multijugador Bluetooth
+     */
     fun setPieceForMultiplayer(position: Position, piece: ChessPiece?) {
         if (position.isValid()) {
             board[position.row][position.col] = piece

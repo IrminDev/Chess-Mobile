@@ -11,33 +11,42 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+// Esquemas de color para tema Guinda
+private val MaroonDarkColorScheme = darkColorScheme(
+    primary = Maroon80,
+    secondary = MaroonGrey80,
+    tertiary = MaroonPink80
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+private val MaroonLightColorScheme = lightColorScheme(
+    primary = Maroon40,
+    secondary = MaroonGrey40,
+    tertiary = MaroonPink40
 )
+
+// Esquemas de color para tema Azul
+private val BlueDarkColorScheme = darkColorScheme(
+    primary = Blue80,
+    secondary = BlueGrey80,
+    tertiary = BlueCyan80
+)
+
+private val BlueLightColorScheme = lightColorScheme(
+    primary = Blue40,
+    secondary = BlueGrey40,
+    tertiary = BlueCyan40
+)
+
+enum class AppTheme {
+    MAROON,  // Guinda - Tema por defecto
+    BLUE     // Azul
+}
 
 @Composable
 fun ChessTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    appTheme: AppTheme = AppTheme.MAROON,
+    dynamicColor: Boolean = false,  // Deshabilitado por defecto para usar nuestros temas
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -45,9 +54,12 @@ fun ChessTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        appTheme == AppTheme.MAROON -> {
+            if (darkTheme) MaroonDarkColorScheme else MaroonLightColorScheme
+        }
+        else -> {  // AppTheme.BLUE
+            if (darkTheme) BlueDarkColorScheme else BlueLightColorScheme
+        }
     }
 
     MaterialTheme(
